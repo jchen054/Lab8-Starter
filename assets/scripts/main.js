@@ -2,12 +2,12 @@
 
 // CONSTANTS
 const RECIPE_URLS = [
-    'https://adarsh249.github.io/Lab8-Starter/recipes/1_50-thanksgiving-side-dishes.json',
-    'https://adarsh249.github.io/Lab8-Starter/recipes/2_roasting-turkey-breast-with-stuffing.json',
-    'https://adarsh249.github.io/Lab8-Starter/recipes/3_moms-cornbread-stuffing.json',
-    'https://adarsh249.github.io/Lab8-Starter/recipes/4_50-indulgent-thanksgiving-side-dishes-for-any-holiday-gathering.json',
-    'https://adarsh249.github.io/Lab8-Starter/recipes/5_healthy-thanksgiving-recipe-crockpot-turkey-breast.json',
-    'https://adarsh249.github.io/Lab8-Starter/recipes/6_one-pot-thanksgiving-dinner.json',
+  'https://adarsh249.github.io/Lab8-Starter/recipes/1_50-thanksgiving-side-dishes.json',
+  'https://adarsh249.github.io/Lab8-Starter/recipes/2_roasting-turkey-breast-with-stuffing.json',
+  'https://adarsh249.github.io/Lab8-Starter/recipes/3_moms-cornbread-stuffing.json',
+  'https://adarsh249.github.io/Lab8-Starter/recipes/4_50-indulgent-thanksgiving-side-dishes-for-any-holiday-gathering.json',
+  'https://adarsh249.github.io/Lab8-Starter/recipes/5_healthy-thanksgiving-recipe-crockpot-turkey-breast.json',
+  'https://adarsh249.github.io/Lab8-Starter/recipes/6_one-pot-thanksgiving-dinner.json',
 ];
 
 // Run the init() function when the page has loaded
@@ -55,7 +55,7 @@ function initializeServiceWorker() {
   //            log that it has failed.
   // STEPS B6 ONWARDS WILL BE IN /sw.js
   if ("serviceWorker" in navigator) {
-    window.onload = (event) => {
+    window.onload = async (event) => {
       try {
         const registration = await navigator.serviceWorker.register("./sw.js", {
           scope: "/",
@@ -122,13 +122,19 @@ async function getRecipes() {
   if (recipes) {
     return JSON.parse(recipes);
   }
-  let arr = [];
   return new Promise(async (resolve, reject) => {
-    for (let i = 0; i<RECIPE_URLS.length; i++) {
+    let recipesArr = [];
+    for (let i = 0; i < RECIPE_URLS.length; i++) {
       try {
         let r = await (await fetch(RECIPE_URLS[i])).json();
-      } catch {
-
+        recipesArr.push(r);
+        if (i == RECIPE_URLS.length - 1) {
+          saveRecipesToStorage(recipesArr);
+          resolve(recipesArr);
+        }
+      } catch (err) {
+        console.log(err.message);
+        reject(err);
       }
     }
   });
